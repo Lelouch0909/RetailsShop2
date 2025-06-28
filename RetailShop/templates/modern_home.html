@@ -56,7 +56,7 @@
                                              alt="{{ product.pName }}" class="d-block w-100">
                                         <div class="carousel-caption d-none d-md-block">
                                             <h5>{{ product.pName }}</h5>
-                                            <p>{{ product.price }} €</p>
+                                            <p>{{ product.price }}  xaf </p>
                                         </div>
                                     </a>
                                 </div>
@@ -106,18 +106,26 @@
                             <h3>{{ product.pName }}</h3>
                             <div class="rating">
                                 <div class="stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
+                                    {% set rating = product.avg_rating|float %}
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= rating|int %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif i <= (rating|int + 0.5) and rating|int < rating %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
-                                <span>4.5/5</span>
+                                <span>{{ rating|round(1) }}/5</span>
+                            </div>
+                            <div class="likes">
+                                <i class="fas fa-heart"></i> <span>{{ product.likes_count }}</span>
                             </div>
                             <div class="price">
-                                <span class="current-price">${{ product.price }}</span>
+                                <span class="current-price">{{ product.price }}  xaf </span>
                                 {% if loop.index % 2 == 0 %}
-                                <span class="original-price">${{ (product.price * 1.2)|round|int }}</span>
+                                <span class="original-price">{{ (product.price * 1.2)|round|int }}  xaf </span>
                                 <span class="discount">-20%</span>
                                 {% endif %}
                             </div>
@@ -147,18 +155,26 @@
                             <h3>{{ product.pName }}</h3>
                             <div class="rating">
                                 <div class="stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
+                                    {% set rating = product.avg_rating|float %}
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= rating|int %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif i <= (rating|int + 0.5) and rating|int < rating %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
-                                <span>5.0/5</span>
+                                <span>{{ rating|round(1) }}/5</span>
+                            </div>
+                            <div class="likes">
+                                <i class="fas fa-heart"></i> <span>{{ product.likes_count }}</span>
                             </div>
                             <div class="price">
-                                <span class="current-price">${{ product.price }}</span>
+                                <span class="current-price">{{ product.price }}  xaf </span>
                                 {% if loop.index == 1 %}
-                                <span class="original-price">${{ (product.price * 1.15)|round|int }}</span>
+                                <span class="original-price">{{ (product.price * 1.15)|round|int }}  xaf </span>
                                 <span class="discount">-30%</span>
                                 {% endif %}
                             </div>
@@ -186,7 +202,7 @@
                             <a href="/view_product/{{ product.id }}" class="style-product">
                                 <img src="{{ url_for('static', filename='image/product/' + product.category + '/' + product.picture) }}" alt="{{ product.pName }}">
                                 <span class="product-name">{{ product.pName }}</span>
-                                <span class="product-price">{{ product.price }} €</span>
+                                <span class="product-price">{{ product.price }}  xaf </span>
                             </a>
                             {% endfor %}
                         {% else %}
@@ -202,7 +218,7 @@
                             <a href="/view_product/{{ product.id }}" class="style-product">
                                 <img src="{{ url_for('static', filename='image/product/' + product.category + '/' + product.picture) }}" alt="{{ product.pName }}">
                                 <span class="product-name">{{ product.pName }}</span>
-                                <span class="product-price">{{ product.price }} €</span>
+                                <span class="product-price">{{ product.price }}  xaf </span>
                             </a>
                             {% endfor %}
                         {% else %}
@@ -218,7 +234,7 @@
                             <a href="/view_product/{{ product.id }}" class="style-product">
                                 <img src="{{ url_for('static', filename='image/product/' + product.category + '/' + product.picture) }}" alt="{{ product.pName }}">
                                 <span class="product-name">{{ product.pName }}</span>
-                                <span class="product-price">{{ product.price }} €</span>
+                                <span class="product-price">{{ product.price }}  xaf </span>
                             </a>
                             {% endfor %}
                         {% else %}
@@ -234,7 +250,7 @@
                             <a href="/view_product/{{ product.id }}" class="style-product">
                                 <img src="{{ url_for('static', filename='image/product/' + product.category + '/' + product.picture) }}" alt="{{ product.pName }}">
                                 <span class="product-name">{{ product.pName }}</span>
-                                <span class="product-price">{{ product.price }} €</span>
+                                <span class="product-price">{{ product.price }}  xaf </span>
                             </a>
                             {% endfor %}
                         {% else %}
@@ -251,39 +267,58 @@
         <div class="container">
             <h2 class="section-title">OUR HAPPY CUSTOMERS</h2>
             <div class="testimonials-grid">
-                <div class="testimonial">
-                    <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+                {% if testimonials %}
+                    {% for testimonial in testimonials %}
+                        <div class="testimonial">
+                            <div class="stars">
+                                {% for i in range(1, 6) %}
+                                    {% if i <= testimonial.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <h4>{{ testimonial.user_name }} <i class="fas fa-check-circle verified"></i></h4>
+                            <p>"{{ testimonial.review_text }}"</p>
+                            <small>About: {{ testimonial.product_name }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="testimonial">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>Sarah M. <i class="fas fa-check-circle verified"></i></h4>
+                        <p>"I'm blown away by the quality and style of the clothes I received from Shop.co. From casual wear to elegant dresses, every piece I've bought has exceeded my expectations."</p>
                     </div>
-                    <h4>Sarah M. <i class="fas fa-check-circle verified"></i></h4>
-                    <p>"I'm blown away by the quality and style of the clothes I received from Shop.co. From casual wear to elegant dresses, every piece I've bought has exceeded my expectations."</p>
-                </div>
-                <div class="testimonial">
-                    <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+                    <div class="testimonial">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>Alex K. <i class="fas fa-check-circle verified"></i></h4>
+                        <p>"Finding clothes that align with my personal style used to be a challenge until I discovered Shop.co. The range of options they offer is truly remarkable, catering to a variety of tastes and occasions."</p>
                     </div>
-                    <h4>Alex K. <i class="fas fa-check-circle verified"></i></h4>
-                    <p>"Finding clothes that align with my personal style used to be a challenge until I discovered Shop.co. The range of options they offer is truly remarkable, catering to a variety of tastes and occasions."</p>
-                </div>
-                <div class="testimonial">
-                    <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+                    <div class="testimonial">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>James L. <i class="fas fa-check-circle verified"></i></h4>
+                        <p>"As someone who's always on the lookout for unique fashion pieces, I'm thrilled to have stumbled upon Shop.co. The selection of clothes is not only diverse but also on-point with the latest trends."</p>
                     </div>
-                    <h4>James L. <i class="fas fa-check-circle verified"></i></h4>
-                    <p>"As someone who's always on the lookout for unique fashion pieces, I'm thrilled to have stumbled upon Shop.co. The selection of clothes is not only diverse but also on-point with the latest trends."</p>
-                </div>
+                {% endif %}
             </div>
         </div>
     </section>

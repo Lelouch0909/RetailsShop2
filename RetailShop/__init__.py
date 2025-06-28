@@ -26,7 +26,7 @@ mysql = MySQL()
 
 app.config['MYSQL_HOST'] = '127.0.0.1'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '123456789'
+app.config['MYSQL_PASSWORD'] = 'h'
 app.config['MYSQL_DB'] = 'menshut'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
@@ -156,7 +156,23 @@ def content_based_filtering(product_id):
 
         if recommend_id:
             placeholders = ','.join(['%s'] * len(recommend_id))
-            query = f'SELECT * FROM products WHERE id IN ({placeholders})'
+            query = f'''
+                SELECT p.*, 
+                       COALESCE(l.likes_count, 0) as likes_count,
+                       COALESCE(r.avg_rating, 0) as avg_rating
+                FROM products p
+                LEFT JOIN (
+                    SELECT product_id, COUNT(*) as likes_count 
+                    FROM product_likes 
+                    GROUP BY product_id
+                ) l ON p.id = l.product_id
+                LEFT JOIN (
+                    SELECT product_id, AVG(rating) as avg_rating 
+                    FROM product_reviews 
+                    GROUP BY product_id
+                ) r ON p.id = r.product_id
+                WHERE p.id IN ({placeholders})
+            '''
             recommend_list = execute_query(query, recommend_id, fetchall=True)
             return recommend_list, recommend_id, category_matched, product_id
         else:
@@ -205,3 +221,7 @@ def initialize_database():
         print(f"Error initializing database: {e}")
 
 from RetailShop import routes
+
+# Import and register the likes_reviews blueprint
+from RetailShop.likes_reviews import likes_reviews
+app.register_blueprint(likes_reviews)

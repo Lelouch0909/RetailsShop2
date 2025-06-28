@@ -22,17 +22,57 @@ app.teardown_appcontext(close_db)
 def index():
     form = OrderForm(request.form)
     try:
-        # Get products for different categories
-        tshirt = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('tshirt',), fetchall=True)
-        wallet = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('wallet',), fetchall=True)
-        belt = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('belt',), fetchall=True)
-        shoes = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('shoes',), fetchall=True)
+        # Get products for different categories with likes and ratings
+        tshirt_query = """
+            SELECT p.*, 
+                   COALESCE(l.likes_count, 0) as likes_count,
+                   COALESCE(r.avg_rating, 0) as avg_rating
+            FROM products p
+            LEFT JOIN (
+                SELECT product_id, COUNT(*) as likes_count 
+                FROM product_likes 
+                GROUP BY product_id
+            ) l ON p.id = l.product_id
+            LEFT JOIN (
+                SELECT product_id, AVG(rating) as avg_rating 
+                FROM product_reviews 
+                GROUP BY product_id
+            ) r ON p.id = r.product_id
+            WHERE p.category = %s
+            ORDER BY RAND() 
+            LIMIT 4
+        """
 
-        # Get products for style categories (BROWSE BY DRESS STYLE section)
-        casual_products = execute_query("SELECT * FROM products WHERE item='casual' OR category='tshirt' ORDER BY RAND() LIMIT 3", (), fetchall=True)
-        formal_products = execute_query("SELECT * FROM products WHERE item='formal' OR category='wallet' ORDER BY RAND() LIMIT 3", (), fetchall=True)
-        party_products = execute_query("SELECT * FROM products WHERE item='party' OR category='belt' ORDER BY RAND() LIMIT 3", (), fetchall=True)
-        gym_products = execute_query("SELECT * FROM products WHERE item='gym' OR category='shoes' ORDER BY RAND() LIMIT 3", (), fetchall=True)
+        tshirt = execute_query(tshirt_query, ('tshirt',), fetchall=True)
+        wallet = execute_query(tshirt_query, ('wallet',), fetchall=True)
+        belt = execute_query(tshirt_query, ('belt',), fetchall=True)
+        shoes = execute_query(tshirt_query, ('shoes',), fetchall=True)
+
+        # Get products for style categories (BROWSE BY DRESS STYLE section) with likes and ratings
+        style_query = """
+            SELECT p.*, 
+                   COALESCE(l.likes_count, 0) as likes_count,
+                   COALESCE(r.avg_rating, 0) as avg_rating
+            FROM products p
+            LEFT JOIN (
+                SELECT product_id, COUNT(*) as likes_count 
+                FROM product_likes 
+                GROUP BY product_id
+            ) l ON p.id = l.product_id
+            LEFT JOIN (
+                SELECT product_id, AVG(rating) as avg_rating 
+                FROM product_reviews 
+                GROUP BY product_id
+            ) r ON p.id = r.product_id
+            WHERE p.item = %s OR p.category = %s
+            ORDER BY RAND() 
+            LIMIT 3
+        """
+
+        casual_products = execute_query(style_query, ('casual', 'tshirt'), fetchall=True)
+        formal_products = execute_query(style_query, ('formal', 'wallet'), fetchall=True)
+        party_products = execute_query(style_query, ('party', 'belt'), fetchall=True)
+        gym_products = execute_query(style_query, ('gym', 'shoes'), fetchall=True)
 
         if tshirt is None or wallet is None or belt is None or shoes is None:
             flash('Database error. Please check your database configuration.', 'danger')
@@ -46,9 +86,21 @@ def index():
         party_products = party_products or []
         gym_products = gym_products or []
 
+        # Get reviews for testimonials
+        testimonials_query = """
+            SELECT r.*, u.name as user_name, p.pName as product_name
+            FROM product_reviews r
+            JOIN users u ON r.user_id = u.id
+            JOIN products p ON r.product_id = p.id
+            ORDER BY r.rating DESC, r.created_at DESC
+            LIMIT 3
+        """
+        testimonials = execute_query(testimonials_query, (), fetchall=True) or []
+
         return render_template('modern_home.html', tshirt=tshirt, wallet=wallet, belt=belt, shoes=shoes, 
                              casual_products=casual_products, formal_products=formal_products, 
                              party_products=party_products, gym_products=gym_products,
+                             testimonials=testimonials,
                              form=form, db_error=False)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
@@ -612,29 +664,29 @@ def admin_add_product():
 
                     execute_query("INSERT INTO product_level(product_id) VALUES(%s)", [product_id], commit=True)
 
-                    if category == 'tshirt':
-                        level = request.form.getlist('tshirt')
+                    if category == 'smartphone':
+                        level = request.form.getlist('smartphone')
                         for lev in level:
                             yes = 'yes'
                             query = 'UPDATE product_level SET {field}=%s WHERE product_id=%s'.format(field=lev)
                             execute_query(query, (yes, product_id), commit=True)
 
-                    elif category == 'wallet':
-                        level = request.form.getlist('wallet')
+                    elif category == 'laptop':
+                        level = request.form.getlist('laptop')
                         for lev in level:
                             yes = 'yes'
                             query = 'UPDATE product_level SET {field}=%s WHERE product_id=%s'.format(field=lev)
                             execute_query(query, (yes, product_id), commit=True)
 
-                    elif category == 'belt':
-                        level = request.form.getlist('belt')
+                    elif category == 'television':
+                        level = request.form.getlist('television')
                         for lev in level:
                             yes = 'yes'
                             query = 'UPDATE product_level SET {field}=%s WHERE product_id=%s'.format(field=lev)
                             execute_query(query, (yes, product_id), commit=True)
 
-                    elif category == 'shoes':
-                        level = request.form.getlist('shoes')
+                    elif category == 'appliance':
+                        level = request.form.getlist('appliance')
                         for lev in level:
                             yes = 'yes'
                             query = 'UPDATE product_level SET {field}=%s WHERE product_id=%s'.format(field=lev)
@@ -692,29 +744,29 @@ def edit_product():
                                 (name, price, description, available, category, item, code, picture, product_id), commit=True)
 
                             if exe is not None:
-                                if category == 'tshirt':
-                                    level = request.form.getlist('tshirt')
+                                if category == 'smartphone':
+                                    level = request.form.getlist('smartphone')
                                     for lev in level:
                                         yes = 'yes'
                                         query = 'UPDATE product_level SET {field}=%s WHERE product_id=%s'.format(field=lev)
                                         execute_query(query, (yes, product_id), commit=True)
 
-                                elif category == 'wallet':
-                                    level = request.form.getlist('wallet')
+                                elif category == 'laptop':
+                                    level = request.form.getlist('laptop')
                                     for lev in level:
                                         yes = 'yes'
                                         query = 'UPDATE product_level SET {field}=%s WHERE product_id=%s'.format(field=lev)
                                         execute_query(query, (yes, product_id), commit=True)
 
-                                elif category == 'belt':
-                                    level = request.form.getlist('belt')
+                                elif category == 'television':
+                                    level = request.form.getlist('television')
                                     for lev in level:
                                         yes = 'yes'
                                         query = 'UPDATE product_level SET {field}=%s WHERE product_id=%s'.format(field=lev)
                                         execute_query(query, (yes, product_id), commit=True)
 
-                                elif category == 'shoes':
-                                    level = request.form.getlist('shoes')
+                                elif category == 'appliance':
+                                    level = request.form.getlist('appliance')
                                     for lev in level:
                                         yes = 'yes'
                                         query = 'UPDATE product_level SET {field}=%s WHERE product_id=%s'.format(field=lev)
@@ -1063,17 +1115,49 @@ def developer():
 def modern_index():
     form = OrderForm(request.form)
     try:
-        # Get products for different categories
-        tshirt = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('tshirt',), fetchall=True)
-        wallet = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('wallet',), fetchall=True)
-        belt = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('belt',), fetchall=True)
-        shoes = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('shoes',), fetchall=True)
+        # Get products for different categories with likes and ratings
+        product_query = """
+            SELECT p.*, 
+                   COALESCE(l.likes_count, 0) as likes_count,
+                   COALESCE(r.avg_rating, 0) as avg_rating
+            FROM products p
+            LEFT JOIN (
+                SELECT product_id, COUNT(*) as likes_count 
+                FROM product_likes 
+                GROUP BY product_id
+            ) l ON p.id = l.product_id
+            LEFT JOIN (
+                SELECT product_id, AVG(rating) as avg_rating 
+                FROM product_reviews 
+                GROUP BY product_id
+            ) r ON p.id = r.product_id
+            WHERE p.category = %s
+            ORDER BY RAND() 
+            LIMIT 4
+        """
+
+        tshirt = execute_query(product_query, ('tshirt',), fetchall=True)
+        wallet = execute_query(product_query, ('wallet',), fetchall=True)
+        belt = execute_query(product_query, ('belt',), fetchall=True)
+        shoes = execute_query(product_query, ('shoes',), fetchall=True)
 
         if tshirt is None or wallet is None or belt is None or shoes is None:
             flash('Database error. Please check your database configuration.', 'danger')
             return render_template('modern_home.html', tshirt=[], wallet=[], belt=[], shoes=[], form=form, db_error=True)
 
-        return render_template('modern_home.html', tshirt=tshirt, wallet=wallet, belt=belt, shoes=shoes, form=form, db_error=False)
+        # Get reviews for testimonials
+        testimonials_query = """
+            SELECT r.*, u.name as user_name, p.pName as product_name
+            FROM product_reviews r
+            JOIN users u ON r.user_id = u.id
+            JOIN products p ON r.product_id = p.id
+            ORDER BY r.rating DESC, r.created_at DESC
+            LIMIT 3
+        """
+        testimonials = execute_query(testimonials_query, (), fetchall=True) or []
+
+        return render_template('modern_home.html', tshirt=tshirt, wallet=wallet, belt=belt, shoes=shoes, 
+                             testimonials=testimonials, form=form, db_error=False)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return render_template('modern_home.html', tshirt=[], wallet=[], belt=[], shoes=[], form=form, db_error=True)
@@ -1083,11 +1167,31 @@ def modern_index():
 def old_index():
     form = OrderForm(request.form)
     try:
-        # Get products for different categories
-        tshirt = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('tshirt',), fetchall=True)
-        wallet = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('wallet',), fetchall=True)
-        belt = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('belt',), fetchall=True)
-        shoes = execute_query("SELECT * FROM products WHERE category=%s ORDER BY RAND() LIMIT 4", ('shoes',), fetchall=True)
+        # Get products for different categories with likes and ratings
+        product_query = """
+            SELECT p.*, 
+                   COALESCE(l.likes_count, 0) as likes_count,
+                   COALESCE(r.avg_rating, 0) as avg_rating
+            FROM products p
+            LEFT JOIN (
+                SELECT product_id, COUNT(*) as likes_count 
+                FROM product_likes 
+                GROUP BY product_id
+            ) l ON p.id = l.product_id
+            LEFT JOIN (
+                SELECT product_id, AVG(rating) as avg_rating 
+                FROM product_reviews 
+                GROUP BY product_id
+            ) r ON p.id = r.product_id
+            WHERE p.category = %s
+            ORDER BY RAND() 
+            LIMIT 4
+        """
+
+        tshirt = execute_query(product_query, ('tshirt',), fetchall=True)
+        wallet = execute_query(product_query, ('wallet',), fetchall=True)
+        belt = execute_query(product_query, ('belt',), fetchall=True)
+        shoes = execute_query(product_query, ('shoes',), fetchall=True)
 
         if tshirt is None or wallet is None or belt is None or shoes is None:
             flash('Database error. Please check your database configuration.', 'danger')
@@ -1312,8 +1416,26 @@ def sales():
 
 @app.route('/view_product/<int:product_id>')
 def view_product(product_id):
-    # Get product details
-    product = execute_query("SELECT * FROM products WHERE id=%s", (product_id,), fetchone=True)
+    # Get product details with likes and ratings
+    product_query = """
+        SELECT p.*, 
+               COALESCE(l.likes_count, 0) as likes_count,
+               COALESCE(r.avg_rating, 0) as avg_rating
+        FROM products p
+        LEFT JOIN (
+            SELECT product_id, COUNT(*) as likes_count 
+            FROM product_likes 
+            GROUP BY product_id
+        ) l ON p.id = l.product_id
+        LEFT JOIN (
+            SELECT product_id, AVG(rating) as avg_rating 
+            FROM product_reviews 
+            GROUP BY product_id
+        ) r ON p.id = r.product_id
+        WHERE p.id = %s
+    """
+
+    product = execute_query(product_query, (product_id,), fetchone=True)
 
     if not product:
         flash('Produit non trouvé', 'danger')

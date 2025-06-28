@@ -39,151 +39,151 @@
                                     <label>Category</label>
                                     <select class="form-control" id="category_id" onchange="populateList();"
                                             name="category">
-                                        {% if product.category == 'tshirt' %}
-                                        <option value="tshirt" selected>T-Shirt</option>
+                                        {% if product.category == 'smartphone' %}
+                                        <option value="smartphone" selected>Smartphones</option>
                                         {% else %}
-                                        <option value="tshirt">T-Shirt</option>
+                                        <option value="smartphone">Smartphones</option>
                                         {% endif %}
-                                        {% if product.category == 'wallet' %}
-                                        <option value="wallet" selected>Wallet</option>
+                                        {% if product.category == 'laptop' %}
+                                        <option value="laptop" selected>Laptops</option>
                                         {% else %}
-                                        <option value="wallet">Wallet</option>
+                                        <option value="laptop">Laptops</option>
                                         {% endif %}
-                                        {% if product.category == 'belt' %}
-                                        <option value="belt" selected>Belt</option>
+                                        {% if product.category == 'television' %}
+                                        <option value="television" selected>Televisions</option>
                                         {% else %}
-                                        <option value="belt">Belt</option>
+                                        <option value="television">Televisions</option>
                                         {% endif %}
-                                        {% if product.category == 'shoes' %}
-                                        <option value="shoes" selected>Shoes</option>
+                                        {% if product.category == 'appliance' %}
+                                        <option value="appliance" selected>Home Appliances</option>
                                         {% else %}
-                                        <option value="shoes">Shoes</option>
+                                        <option value="appliance">Home Appliances</option>
                                         {% endif %}
                                     </select>
                                 </div>
                                 {% for product_level in product_level %}
                                 <div class="form-group level-container">
-                                    {% if product.category == 'tshirt' %}
-                                    <label>level for T-shirt</label>
+                                    {% if product.category == 'smartphone' %}
+                                    <label>Features for Smartphones</label>
                                     <div class="form-group">
                                         <label class="checkbox-inline active">
-                                            {% if product_level.v_shape == 'yes' %}
-                                            <input type="checkbox" checked name="tshirt" value="v_shape">V-Shape
+                                            {% if product_level.android == 'yes' %}
+                                            <input type="checkbox" checked name="smartphone" value="android">Android
                                             {% else%}
-                                            <input type="checkbox" name="tshirt" value="v_shape">V-Shape
+                                            <input type="checkbox" name="smartphone" value="android">Android
                                             {% endif %}
                                         </label>
                                         <label class="checkbox-inline">
-                                            {% if product_level.polo == 'yes' %}
-                                            <input type="checkbox" checked name="tshirt" value="polo">Polo T-shirt
+                                            {% if product_level.ios == 'yes' %}
+                                            <input type="checkbox" checked name="smartphone" value="ios">iOS
                                             {% else%}
-                                            <input type="checkbox" name="tshirt" value="polo">Polo T-shirt
+                                            <input type="checkbox" name="smartphone" value="ios">iOS
                                             {% endif %}
                                         </label>
                                         <label class="checkbox-inline">
-                                            {% if product_level.clean_text == 'yes' %}
-                                            <input type="checkbox" checked name="tshirt" value="clean_text">Clean Text
+                                            {% if product_level.5g == 'yes' %}
+                                            <input type="checkbox" checked name="smartphone" value="5g">5G
                                             {% else%}
-                                            <input type="checkbox" name="tshirt" value="clean_text">Clean Text
+                                            <input type="checkbox" name="smartphone" value="5g">5G
                                             {% endif %}
                                         </label>
                                         <label class="checkbox-inline">
-                                            {% if product_level.design == 'yes' %}
-                                            <input type="checkbox" checked name="tshirt" value="design">Colorful Design
+                                            {% if product_level.dual_sim == 'yes' %}
+                                            <input type="checkbox" checked name="smartphone" value="dual_sim">Dual SIM
                                             {% else%}
-                                            <input type="checkbox" name="tshirt" value="design">Colorful Design
-                                            {% endif %}
-                                        </label>
-                                    </div>
-                                    {% endif %}
-                                    {% if product.category == 'wallet' %}
-                                    <label>Level for Wallet</label>
-                                    <div class="form-group">
-                                        <label class="checkbox-inline">
-                                            {% if product_level.chain == 'yes' %}
-                                            <input type="checkbox" checked name="wallet" value="chain">Chain
-                                            {% else%}
-                                            <input type="checkbox" name="wallet" value="chain">Chain
-                                            {% endif %}
-                                        </label>
-                                        <label class="checkbox-inline">
-                                            {% if product_level.leather == 'yes' %}
-                                            <input type="checkbox" checked name="wallet" value="leather">Leather
-                                            {% else%}
-                                            <input type="checkbox" name="wallet" value="leather">Leather
-                                            {% endif %}
-                                        </label>
-                                        <label class="checkbox-inline">
-                                            {% if product_level.design == 'yes' %}
-                                            <input type="checkbox" checked name="wallet" value="design">Design
-                                            {% else%}
-                                            <input type="checkbox" name="wallet" value="design">Design
+                                            <input type="checkbox" name="smartphone" value="dual_sim">Dual SIM
                                             {% endif %}
                                         </label>
                                     </div>
                                     {% endif %}
-                                    {% if product.category == 'belt' %}
-                                    <label>Level for Belt</label>
+                                    {% if product.category == 'laptop' %}
+                                    <label>Features for Laptops</label>
                                     <div class="form-group">
                                         <label class="checkbox-inline">
-                                            {% if product_level.leather == 'yes' %}
-                                            <input type="checkbox" checked name="belt" value="leather">Leather
+                                            {% if product_level.gaming == 'yes' %}
+                                            <input type="checkbox" checked name="laptop" value="gaming">Gaming
                                             {% else%}
-                                            <input type="checkbox" name="belt" value="leather">Leather
+                                            <input type="checkbox" name="laptop" value="gaming">Gaming
                                             {% endif %}
                                         </label>
                                         <label class="checkbox-inline">
-                                            {% if product_level.hook == 'yes' %}
-                                            <input type="checkbox" checked name="belt" value="hook">Hook
+                                            {% if product_level.ultrabook == 'yes' %}
+                                            <input type="checkbox" checked name="laptop" value="ultrabook">Ultrabook
                                             {% else%}
-                                            <input type="checkbox" name="belt" value="hook">Hook
+                                            <input type="checkbox" name="laptop" value="ultrabook">Ultrabook
                                             {% endif %}
                                         </label>
                                         <label class="checkbox-inline">
-                                            {% if product_level.color == 'yes' %}
-                                            <input type="checkbox" checked name="belt" value="color">Color
+                                            {% if product_level.touchscreen == 'yes' %}
+                                            <input type="checkbox" checked name="laptop" value="touchscreen">Touchscreen
                                             {% else%}
-                                            <input type="checkbox" name="belt" value="color">Color
-                                            {% endif %}
-                                        </label>
-                                        <label class="checkbox-inline">
-                                            {% if product_level.design == 'yes' %}
-                                            <input type="checkbox" checked name="belt" value="design">Design
-                                            {% else%}
-                                            <input type="checkbox" name="belt" value="design">Design
+                                            <input type="checkbox" name="laptop" value="touchscreen">Touchscreen
                                             {% endif %}
                                         </label>
                                     </div>
                                     {% endif %}
-                                    {% if product.category == 'shoes' %}
-                                    <label>Level for Shoes</label>
+                                    {% if product.category == 'television' %}
+                                    <label>Features for Televisions</label>
                                     <div class="form-group">
                                         <label class="checkbox-inline">
-                                            {% if product_level.formal == 'yes' %}
-                                            <input type="checkbox" checked name="shoes" value="formal">Formal
+                                            {% if product_level.smart_tv == 'yes' %}
+                                            <input type="checkbox" checked name="television" value="smart_tv">Smart TV
                                             {% else%}
-                                            <input type="checkbox" name="shoes" value="formal">Formal
+                                            <input type="checkbox" name="television" value="smart_tv">Smart TV
                                             {% endif %}
                                         </label>
                                         <label class="checkbox-inline">
-                                            {% if product_level.converse == 'yes' %}
-                                            <input type="checkbox" checked name="shoes" value="converse">Converse
+                                            {% if product_level.4k == 'yes' %}
+                                            <input type="checkbox" checked name="television" value="4k">4K
                                             {% else%}
-                                            <input type="checkbox" name="shoes" value="converse">Converse
+                                            <input type="checkbox" name="television" value="4k">4K
                                             {% endif %}
                                         </label>
                                         <label class="checkbox-inline">
-                                            {% if product_level.loafer == 'yes' %}
-                                            <input type="checkbox" checked name="shoes" value="loafer">Loafer
+                                            {% if product_level.hdr == 'yes' %}
+                                            <input type="checkbox" checked name="television" value="hdr">HDR
                                             {% else%}
-                                            <input type="checkbox" name="shoes" value="loafer">Loafer
+                                            <input type="checkbox" name="television" value="hdr">HDR
                                             {% endif %}
                                         </label>
                                         <label class="checkbox-inline">
-                                            {% if product_level.leather == 'yes' %}
-                                            <input type="checkbox" name="shoes" checked value="leather">Leather
+                                            {% if product_level.oled == 'yes' %}
+                                            <input type="checkbox" checked name="television" value="oled">OLED
                                             {% else%}
-                                            <input type="checkbox" name="shoes" value="leather">Leather
+                                            <input type="checkbox" name="television" value="oled">OLED
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                    {% endif %}
+                                    {% if product.category == 'appliance' %}
+                                    <label>Features for Home Appliances</label>
+                                    <div class="form-group">
+                                        <label class="checkbox-inline">
+                                            {% if product_level.refrigerator == 'yes' %}
+                                            <input type="checkbox" checked name="appliance" value="refrigerator">Refrigerator
+                                            {% else%}
+                                            <input type="checkbox" name="appliance" value="refrigerator">Refrigerator
+                                            {% endif %}
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            {% if product_level.washing_machine == 'yes' %}
+                                            <input type="checkbox" checked name="appliance" value="washing_machine">Washing Machine
+                                            {% else%}
+                                            <input type="checkbox" name="appliance" value="washing_machine">Washing Machine
+                                            {% endif %}
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            {% if product_level.microwave == 'yes' %}
+                                            <input type="checkbox" checked name="appliance" value="microwave">Microwave
+                                            {% else%}
+                                            <input type="checkbox" name="appliance" value="microwave">Microwave
+                                            {% endif %}
+                                        </label>
+                                        <label class="checkbox-inline">
+                                            {% if product_level.air_conditioner == 'yes' %}
+                                            <input type="checkbox" checked name="appliance" value="air_conditioner">Air Conditioner
+                                            {% else%}
+                                            <input type="checkbox" name="appliance" value="air_conditioner">Air Conditioner
                                             {% endif %}
                                         </label>
                                     </div>

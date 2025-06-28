@@ -42,35 +42,40 @@
             <!-- Product Info -->
             <div class="product-info">
                 <h1 class="product-title">{{ product.pName }}</h1>
-                
+
                 <!-- Rating -->
                 <div class="rating-section">
                     <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
+                        {% set rating = product.avg_rating|default(0)|float %}
+                        {% for i in range(1, 6) %}
+                            {% if i <= rating|int %}
+                                <i class="fas fa-star"></i>
+                            {% elif i <= (rating|int + 0.5) and rating|int < rating %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
                     </div>
-                    <span class="rating-text">4.5/5</span>
+                    <span class="rating-text">{{ rating|round(1) }}/5</span>
                 </div>
 
                 <!-- Price -->
                 <div class="price-section">
-                    <span class="current-price">{{ product.price }}€</span>
-                    <span class="original-price">{{ (product.price * 1.4)|round|int }}€</span>
+                    <span class="current-price">{{ product.price }}  xaf </span>
+                    <span class="original-price">{{ (product.price * 1.4)|round|int }}  xaf </span>
                     <span class="discount-badge">-40%</span>
                 </div>
 
                 <!-- Description -->
                 <div class="product-description-section">
                     <p class="product-description">{{ product.description }}</p>
-                    
+
                     <!-- Product Features -->
                     <div class="product-features">
                         <div class="feature-item">
                             <i class="fas fa-shipping-fast"></i>
-                            <span>Free shipping on orders over $50</span>
+                            <span>Free shipping on orders over 25000  xaf </span>
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-undo"></i>
@@ -124,11 +129,12 @@
                         <span class="stock-status out-of-stock">Out of Stock</span>
                     </div>
                     {% endif %}
-                    
+
                     <!-- Additional Actions -->
                     <div class="product-actions">
-                        <button class="action-btn wishlist-btn" title="Add to Wishlist">
-                            <i class="far fa-heart"></i>
+                        <button class="action-btn like-btn" title="Like Product" data-product-id="{{ product.id }}">
+                            <i class="far fa-heart" id="like-icon-{{ product.id }}"></i>
+                            <span class="like-count" id="like-count-{{ product.id }}">0</span>
                         </button>
                         <button class="action-btn compare-btn" title="Compare">
                             <i class="fas fa-balance-scale"></i>
@@ -150,48 +156,76 @@
             <h2>Rating & Reviews</h2>
             <div class="review-summary">
                 <div class="overall-rating">
-                    <span class="rating-number">4.5</span>
+                    <span class="rating-number" id="average-rating">0.0</span>
                     <div class="rating-details">
-                        <div class="stars-large">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
+                        <div class="stars-large" id="average-stars">
+                            <i class="far fa-star"></i>
+                            <i class="far fa-star"></i>
+                            <i class="far fa-star"></i>
+                            <i class="far fa-star"></i>
+                            <i class="far fa-star"></i>
                         </div>
-                        <span class="total-reviews">Based on 451 reviews</span>
+                        <span class="total-reviews">Based on <span id="total-reviews">0</span> reviews</span>
                     </div>
                 </div>
                 <div class="rating-breakdown">
                     <div class="rating-bar">
                         <span>5</span>
-                        <div class="bar"><div class="fill" style="width: 70%"></div></div>
-                        <span>315</span>
+                        <div class="bar"><div class="fill" id="five-star-bar" style="width: 0%"></div></div>
+                        <span id="five-star-count">0</span>
                     </div>
                     <div class="rating-bar">
                         <span>4</span>
-                        <div class="bar"><div class="fill" style="width: 20%"></div></div>
-                        <span>90</span>
+                        <div class="bar"><div class="fill" id="four-star-bar" style="width: 0%"></div></div>
+                        <span id="four-star-count">0</span>
                     </div>
                     <div class="rating-bar">
                         <span>3</span>
-                        <div class="bar"><div class="fill" style="width: 7%"></div></div>
-                        <span>32</span>
+                        <div class="bar"><div class="fill" id="three-star-bar" style="width: 0%"></div></div>
+                        <span id="three-star-count">0</span>
                     </div>
                     <div class="rating-bar">
                         <span>2</span>
-                        <div class="bar"><div class="fill" style="width: 2%"></div></div>
-                        <span>9</span>
+                        <div class="bar"><div class="fill" id="two-star-bar" style="width: 0%"></div></div>
+                        <span id="two-star-count">0</span>
                     </div>
                     <div class="rating-bar">
                         <span>1</span>
-                        <div class="bar"><div class="fill" style="width: 1%"></div></div>
-                        <span>5</span>
+                        <div class="bar"><div class="fill" id="one-star-bar" style="width: 0%"></div></div>
+                        <span id="one-star-count">0</span>
                     </div>
                 </div>
             </div>
         </div>
-        
+
+        {% if session.logged_in %}
+        <div class="add-review-section">
+            <h3>Write a Review</h3>
+            <form id="review-form" data-product-id="{{ product.id }}">
+                <div class="rating-input">
+                    <label>Your Rating:</label>
+                    <div class="star-rating">
+                        <i class="far fa-star" data-rating="1"></i>
+                        <i class="far fa-star" data-rating="2"></i>
+                        <i class="far fa-star" data-rating="3"></i>
+                        <i class="far fa-star" data-rating="4"></i>
+                        <i class="far fa-star" data-rating="5"></i>
+                    </div>
+                    <input type="hidden" name="rating" id="rating-value" value="0">
+                </div>
+                <div class="review-input">
+                    <label for="review-text">Your Review:</label>
+                    <textarea id="review-text" name="review_text" rows="4" placeholder="Share your thoughts about this product..."></textarea>
+                </div>
+                <button type="submit" class="submit-review-btn">Submit Review</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="login-to-review">
+            <p>Please <a href="{{ url_for('login') }}">login</a> to write a review.</p>
+        </div>
+        {% endif %}
+
         <div class="reviews-filters">
             <button class="filter-btn active" data-filter="all">All Reviews</button>
             <button class="filter-btn" data-filter="5">5 Stars</button>
@@ -199,66 +233,17 @@
             <button class="filter-btn" data-filter="3">3 Stars</button>
             <button class="filter-btn" data-filter="verified">Verified Purchase</button>
         </div>
-        
+
         <div class="reviews-grid">
-            <div class="reviews-list">
-                <h3>All Reviews <span class="review-count">(451)</span></h3>
-                
-                <div class="review-card">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <strong>Samantha D.</strong>
-                            <span class="verified-badge"><i class="fas fa-check-circle"></i></span>
-                        </div>
-                        <div class="review-stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <p class="review-text">"I absolutely love this t-shirt! The design is unique and the fabric feels so comfortable. As a fellow designer, I appreciate the attention to detail. It's become my favorite go-to shirt."</p>
-                    <span class="review-date">Posted on August 14, 2023</span>
+            <div class="reviews-list" id="reviews-container">
+                <h3>All Reviews <span class="review-count" id="review-count">(0)</span></h3>
+
+                <!-- Reviews will be loaded dynamically here -->
+                <div id="no-reviews-message" style="display: none;">
+                    <p>No reviews yet. Be the first to review this product!</p>
                 </div>
 
-                <div class="review-card">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <strong>Alex M.</strong>
-                            <span class="verified-badge"><i class="fas fa-check-circle"></i></span>
-                        </div>
-                        <div class="review-stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                        </div>
-                    </div>
-                    <p class="review-text">"The shirt exceeded my expectations! The colors are vibrant and the print quality is top-notch. Being a UX designer myself, I'm quite picky about aesthetics, and this t-shirt definitely passes the test."</p>
-                    <span class="review-date">Posted on August 15, 2023</span>
-                </div>
-
-                <div class="review-card">
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <strong>Ethan R.</strong>
-                            <span class="verified-badge"><i class="fas fa-check-circle"></i></span>
-                        </div>
-                        <div class="review-stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                        </div>
-                    </div>
-                    <p class="review-text">"This t-shirt is a must-have for anyone who appreciates good design. The minimalistic yet stylish design caught my eye, and the fit is perfect. I can see the designer's touch in every aspect of this shirt."</p>
-                    <span class="review-date">Posted on August 16, 2023</span>
-                </div>
-
-                <button class="load-more-btn">Load More Reviews</button>
+                <button class="load-more-btn" id="load-more-reviews" style="display: none;">Load More Reviews</button>
             </div>
         </div>
     </div>
@@ -278,17 +263,22 @@
                         <h5 class="product-name-modern">{{ product.pName }}</h5>
                         <div class="rating-modern">
                             <div class="stars-modern">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                            <span class="rating-text-modern">3.5/5</span>
+                                {% set rating = product.avg_rating|default(3.5)|float %}
+                                {% for i in range(1, 6) %}
+                                    {% if i <= rating|int %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif i <= (rating|int + 0.5) and rating|int < rating %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}  
+                            </div>  
+                            <span class="rating-text-modern">{{ rating|round(1) }}/5</span>
                         </div>
                         <div class="price-modern">
-                            <span class="current-price-modern">{{ product.price }}€</span>
-                            <span class="original-price-modern">{{ (product.price * 1.3)|round|int }}€</span>
+                            <span class="current-price-modern">{{ product.price }}  xaf </span>
+                            <span class="original-price-modern">{{ (product.price * 1.3)|round|int }}  xaf </span>
                             <span class="discount-modern">-30%</span>
                         </div>
                     </div>
@@ -299,5 +289,8 @@
     </div>
 </section>
 {% endif %}
+
+<!-- Include likes and reviews JavaScript -->
+<script src="/static/js/likes-reviews.js"></script>
 
 {% endblock %}

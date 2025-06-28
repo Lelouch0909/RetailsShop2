@@ -77,6 +77,26 @@ CREATE TABLE IF NOT EXISTS `product_view` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 
+CREATE TABLE IF NOT EXISTS `product_likes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_product` (`user_id`, `product_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `product_reviews` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `rating` int(11) NOT NULL,
+  `review_text` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_product_review` (`user_id`, `product_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
@@ -105,3 +125,21 @@ INSERT INTO `product_level` (`id`, `product_id`, `v_shape`, `polo`, `clean_text`
 (2, 2, 'no', 'no', 'no', 'no', 'yes', 'yes', 'no', 'no', 'no', 'no', 'no'),
 (3, 3, 'no', 'no', 'no', 'no', 'no', 'yes', 'no', 'no', 'no', 'no', 'yes'),
 (4, 4, 'no', 'no', 'no', 'no', 'no', 'yes', 'yes', 'no', 'no', 'no', 'no');
+
+-- Insert sample data for product likes
+INSERT INTO `product_likes` (`id`, `user_id`, `product_id`, `created_at`) VALUES
+(1, 9, 1, '2023-10-15 10:30:00'),
+(2, 12, 1, '2023-10-15 11:45:00'),
+(3, 13, 1, '2023-10-16 09:20:00'),
+(4, 9, 2, '2023-10-16 14:10:00'),
+(5, 14, 2, '2023-10-17 16:30:00'),
+(6, 9, 3, '2023-10-18 08:45:00'),
+(7, 15, 4, '2023-10-18 19:15:00');
+
+-- Insert sample data for product reviews
+INSERT INTO `product_reviews` (`id`, `user_id`, `product_id`, `rating`, `review_text`, `created_at`) VALUES
+(1, 9, 1, 5, 'Great t-shirt! The fabric is comfortable and the design is stylish.', '2023-10-15 10:35:00'),
+(2, 12, 1, 4, 'Nice t-shirt, good quality for the price.', '2023-10-15 12:00:00'),
+(3, 13, 2, 5, 'Excellent wallet, very durable and stylish.', '2023-10-16 10:15:00'),
+(4, 9, 3, 4, 'Comfortable shoes, but they run a bit small.', '2023-10-17 14:30:00'),
+(5, 14, 4, 5, 'Great belt, looks more expensive than it is!', '2023-10-18 09:45:00');
